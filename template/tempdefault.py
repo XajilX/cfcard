@@ -81,6 +81,9 @@ class TempDefault(Itemplate):
         img.paste(avatar,(20,20),Image.fromarray(arr_mask))
 
         return img
+    
+    def generate(self, name: str, rank: str, rating: int, link_avatar: str) -> Image:
+        return asyncio.run(self.generate_async(name, rank, rating, link_avatar))
 
     def fail(self, msg: str):
         img = Image.new('RGB',(518,320),(255,255,255))
