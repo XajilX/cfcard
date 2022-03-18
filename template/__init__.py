@@ -4,10 +4,10 @@ import sys, os
 
 class Itemplate(ABC):
     @abstractmethod
-    def generate(self, name: str, rank: str, rating: int, avatar: Image) -> Image:
+    def generate(self, name: str, rank: str, rating: int, link_avatar: str) -> Image:
         pass
     @abstractmethod
-    def fail(self) -> Image:
+    def fail(self, msg: str) -> Image:
         pass
 
 from .tempdefault import TempDefault

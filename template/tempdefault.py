@@ -1,6 +1,9 @@
 from template import Itemplate
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
+from io import BytesIO
+import asyncio
+import aiohttp
 
 class TempDefault(Itemplate):
     def __init__(self):
@@ -20,9 +23,14 @@ class TempDefault(Itemplate):
         self.font_rating = 'fonts/NovaMono.ttf'
         self.font_rank = 'fonts/DosisMed.ttf'
         self.font_name = 'fonts/DosisSemi.ttf'
-    def generate(self, name: str, rank: str, rating: int, avatar: Image):
+    async def generate_async(self, name: str, rank: str, rating: int, link_avatar: str):
+        async def gene_bytes_avatar():
+            async with aiohttp.ClientSession() as session:
+                async with session.get(link_avatar) as req_avatar:
+                    return await req_avatar.read()
+
+        task_avatar = asyncio.create_task(gene_bytes_avatar())
         img = Image.new('RGB',(518,320),(255,255,255))
-        avatar = avatar.resize((160,160),Image.ANTIALIAS)
         arr_mask = np.ones((160,160),dtype=bool)
         for x in range(160):
             for y in range(160):
@@ -32,8 +40,6 @@ class TempDefault(Itemplate):
             for y in range(160):
                 if (x-159)/(y-79.5)>-0.5 and (x-159)/(y-79.5)<0.5:
                     arr_mask[x,y] = False
-
-        img.paste(avatar,(20,20),Image.fromarray(arr_mask))
 
         arr_rank = np.zeros((160,160,3),dtype=np.uint8)
         for y in range(160):
@@ -68,12 +74,19 @@ class TempDefault(Itemplate):
         ttf_rank = ImageFont.truetype(self.font_rank,28)
         tw, th = ttf_rank.getsize(rank)
         draw_name.text((220, 116 - (48-size_name)//2), rank,(0x45,0x45,0x45),ttf_rank)
+
+        bytes_avatar = await task_avatar
+        io_avatar = BytesIO(bytes_avatar)
+        avatar = Image.open(io_avatar).resize((160,160),Image.ANTIALIAS)
+        img.paste(avatar,(20,20),Image.fromarray(arr_mask))
+
         return img
-    def fail(self):
+
+    def fail(self, msg: str):
         img = Image.new('RGB',(518,320),(255,255,255))
         ttf = ImageFont.truetype(self.font_name,48)
-        tw, th = ttf.getsize('User Not Found')
+        tw, th = ttf.getsize(msg)
         draw = ImageDraw.Draw(img)
-        draw.text(((518 - tw) // 2, (320 - th) // 2), 'User Not Found',(0x80,0x80,0x80),ttf)
+        draw.text(((518 - tw) // 2, (320 - th) // 2), msg,(0x80,0x80,0x80),ttf)
         return img
 
