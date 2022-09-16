@@ -21,7 +21,7 @@ def index():
             info = res['result'][0]
             rank, rating = info.get('rank','unranked'), info.get('rating',-1)
             link_avatar = info['titlePhoto']
-            img = TemplateGetter().getTemplate(theme).generate(name,rank,rating,link_avatar)
+            img = TemplateGetter().getTemplate(theme).generate(name,rank,rating,'https:' + link_avatar)
         else:
             img = TemplateGetter().getTemplate(theme).fail('User Not Found')
     except Exception:
