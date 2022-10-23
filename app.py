@@ -4,12 +4,14 @@ from template import TemplateGetter
 from io import BytesIO
 import requests as rqs
 import json
+import re
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
     
+    rqs.adapters.DEFAULT_RETRIES = 5
     name = request.args['user']
     theme = request.args.get('theme','')
     img = Image.new('L',(0,0))
@@ -21,10 +23,16 @@ def index():
             info = res['result'][0]
             rank, rating = info.get('rank','unranked'), info.get('rating',-1)
             link_avatar = info['titlePhoto']
-            img = TemplateGetter().getTemplate(theme).generate(name,rank,rating,'https:' + link_avatar)
+
+            if re.search("^(http:|https:)", link_avatar) is None:
+                link_avatar = 'https:' + link_avatar
+
+            print(link_avatar)
+            img = TemplateGetter().getTemplate(theme).generate(name,rank,rating,link_avatar)
         else:
             img = TemplateGetter().getTemplate(theme).fail('User Not Found')
-    except Exception:
+    except Exception as e:
+        print(e)
         img = TemplateGetter().getTemplate(theme).fail('Source Error')
     
     io_img = BytesIO()
