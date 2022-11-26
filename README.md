@@ -14,7 +14,7 @@ Inspired by [CFRatingColor](https://github.com/hanlin-studio/CFRatingColor)
 
 user: 必填, codeforces用户名
 
-theme: 可选, 名片主题, 默认为default
+theme: 可选, 名片主题, 默认为clear
 
 **示例**: 
 
