@@ -16,7 +16,7 @@ from .tempdark import TempDark
 class TemplateGetter():
     def __init__(self) -> None:
         self.__temps = {
-            'default': TempDefault,
+            'clear': TempDefault,
             'dark': TempDark
         }
     def getTemplate(self, name: str) -> Itemplate:
